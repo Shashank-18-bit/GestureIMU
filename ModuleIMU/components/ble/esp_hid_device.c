@@ -164,19 +164,26 @@ uint8_t buffer[HID_CC_IN_RPT_LEN] = {0x0, 0x0};
 esp_err_t ble_hid_task(int16_t *data)
 {
     esp_err_t ret;
+    uint8_t data_to_send[6];
+    int i, j;
+
+    ESP_LOGI(TAG, "Available int16_t data: %d %d %d", data[0], data[1], data[2]);
     ESP_LOGI(TAG, "Available int16_t data: %x %x %x", data[0], data[1], data[2]);
+    
+    // TODO : what we are doing is reading two 8 bit values from MPU6050 and combining them
+    // to form a 16 bit value and then again breaking them to be transmitted via BLE. For now
+    // let this overhead be...later send the values via BLE without fusion itself.
 
-    // TODO: we can only send uint8_t using esp_hidd_dev_input_set() so we will break the int16_t
-    // into two uint8_t integers and send them seperately so that the sign is also preserved.
-    // later combine them in ModuleIMU or on the host. The following values only work with unsigned LSB only
+    //////////////////// This will go //////////////////////////////////////////
+    for(i = 0, j = 0; i < 3; i++, j += 2)
+    {
+        data_to_send[j] = data[i] >> 8;
+        data_to_send[j + 1] = data[i];
+    }
+    ////////////////////////////////////////////////////////////////////////////
 
-    ///// This will go ///////
-    uint8_t data_to_send[3];
-    data_to_send[0] = data[0];
-    data_to_send[1] = data[1];
-    data_to_send[2] = data[2];
-    ESP_LOGI(TAG, "Sending uint8_t data: %x %x %x", data_to_send[0], data_to_send[1], data_to_send[2]);
-    //////////////////////////
+    ESP_LOGI(TAG, "Sending broken uint8_t data: %x %x %x %x %x %x", data_to_send[0], data_to_send[1], data_to_send[2], 
+                                                                data_to_send[3], data_to_send[4], data_to_send[5]);
 
     ret = esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 1, HID_RPT_ID_CC_IN, data_to_send, sizeof(data_to_send));
     vTaskDelay(100 / portTICK_PERIOD_MS);
