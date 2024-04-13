@@ -1,6 +1,6 @@
 # Host
 
-## data_parser.py
+## parser.py
 
 This file is responsible for the following things
 - Parsing the `data.txt` file to extract raw acceleration values.

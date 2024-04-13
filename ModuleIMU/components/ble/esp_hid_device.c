@@ -186,7 +186,6 @@ esp_err_t ble_hid_task(int16_t *data)
                                                                 data_to_send[3], data_to_send[4], data_to_send[5]);
 
     ret = esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 1, HID_RPT_ID_CC_IN, data_to_send, sizeof(data_to_send));
-    vTaskDelay(100 / portTICK_PERIOD_MS);
 
     return ret;
 }

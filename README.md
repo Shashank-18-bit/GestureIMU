@@ -29,6 +29,7 @@ Terminal 1:
 cd Host
 sudo hcidump -R > data.txt
 ```
+After this whatever will be received from BLE will be logged in data.txt.
 
 Terminal 2:
 ```
@@ -36,16 +37,20 @@ cd ModuleIMU
 get_idf
 idf.py flash monitor
 ```
+These commands will signal MPU6050 will start recording gestures/end sequence and sending them to PC via BLE depending on the switch pressed.
+```
+/* Pseudo Code */
 
-When the output on Terminal 2 is `MAIN: . . .` kill the command in Terminal 1 using `Ctrl + C` and Terminal 2 using `Ctrl + ]`
+if (SWITCH_1 hold) {
+    send gesture data
+} else if (SWITCH_2 hold) {
+    send end sequence
+}
+```
 
 ## Generation of data.csv
 Terminal 1:
 ```
-python3 data_parser.py
+python3 parser.py
 ```
-This will generate the data.csv which will be our data for the ML model.
-
-
-
-
+This will generate multiple data*.csv files according to the number of gestures found in the data.txt file.
