@@ -1,13 +1,22 @@
 import csv
 import numpy as np
+import sys
 
-bt_txt_file = open("data.txt", "r")
+txt_prefix = "txt/"+sys.argv[1]
+bt_txt_file_name = txt_prefix + ".txt"
+bt_txt_file = open(bt_txt_file_name, "r")
 data = bt_txt_file.readlines()
 
-bt_csv_file = open("data0.csv", "w")
+csv_prefix = "csv/"+sys.argv[1]
+bt_csv_file_name = csv_prefix + "_" + "0" + ".csv"
+bt_csv_file = open(bt_csv_file_name, "w")
 fields = ['ax', 'ay', 'az']
 csvwriter = csv.writer(bt_csv_file)
 csvwriter.writerow(fields)
+
+print("-------------------------------------")
+print("writing to the file", bt_csv_file_name)
+print("-------------------------------------")
 
 end_seq_flag = 0
 file_count = 1
@@ -27,10 +36,13 @@ for line in data:
     if(raw_values != [0,0,0,1,0,0]):
 
         if(end_seq_flag == 1):
-            file_name = "data" + str(file_count) + ".csv"
-            print("writing to a new file", file_name)
+            new_file_name = csv_prefix + "_" + str(file_count) + ".csv"
 
-            bt_csv_file = open(file_name, "w")
+            print("-------------------------------------")
+            print("writing to the file", new_file_name)
+            print("-------------------------------------")
+
+            bt_csv_file = open(new_file_name, "w")
             csvwriter = csv.writer(bt_csv_file)
 
             file_count = file_count + 1

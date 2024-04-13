@@ -5,12 +5,12 @@ The project contains two folders
 ## ModuleIMU
 This folder contains the esp idf project. It will handle the following things
 - [x] Interfacing of MPU6050
-- [x] Sending the data acquired from MPU6050 to the host via BLE protocol
+- [x] Sending the data acquired from MPU6050 to the host PC via BLE.
 
 ## Host
 This folder contains the code that will run on the host. It will handle the following things
-- [x] Parsing the data.txt which will be the dump of the data received via BLE. The dump will be generated using the hcidump tool.
-- [x] Generating the data.csv which will be our data for the ML model.
+- [x] Parsing the `.txt` files where the gesture data received via BLE is dumped.
+- [x] Generating data set.
 - [ ] Training and running ML model on the data.
 
 # Usage
@@ -22,14 +22,17 @@ cd GestureIMU
 ```
 
 ## Sensor Data Acquisition
-Connect the module to your PC and open two terminals.
+Connect the module to your host PC and open two terminals.
 
 Terminal 1:
 ```
 cd Host
-sudo hcidump -R > data.txt
+chmod +x record_gesture.sh
+./record_gesture.sh <gesture>
 ```
-After this whatever will be received from BLE will be logged in data.txt.
+The `<gesture>` argument of the shell script signifies the gesture being recorded. Pass `0` to record the gesture of 0, Pass `7` to record the gesture of 7 etc.
+
+The gesture data will be recorded in the `<gesture>.txt` file in the `Host/txt/` directory.
 
 Terminal 2:
 ```
@@ -37,7 +40,7 @@ cd ModuleIMU
 get_idf
 idf.py flash monitor
 ```
-These commands will signal MPU6050 will start recording gestures/end sequence and sending them to PC via BLE depending on the switch pressed.
+After this MPU6050 will start recording gestures and ESP32 will send them to the host PC via BLE depending on the switch pressed.
 ```
 /* Pseudo Code */
 
@@ -47,10 +50,19 @@ if (SWITCH_1 hold) {
     send end sequence
 }
 ```
+The shell script running in the Terminal 1 will be recording the value sent by ESP32 and received by the host PC into the corresponding `.txt` file.
 
-## Generation of data.csv
+## Data Set Generation
+After the data for one gesture is recorded, kill the command in Terminal 1 using `Ctrl + C`. You will see `<gesture>.txt` file in the `Host/txt/` directory.
+
+To generate CSV data, run the following command.
+
 Terminal 1:
 ```
-python3 parser.py
+python3 parser.py <gesture>
 ```
-This will generate multiple data*.csv files according to the number of gestures found in the data.txt file.
+The `<gesture>` argument of the python script signifies the gesture for which `.csv` are being generated. Pass `0` for gesture 0, Pass `7` for gesture of 7 etc.
+
+This will generate multiple `.csv` of the naming convention `a_b.csv` in the `Host/csv/`directory. Here `a` is the gesture and `b` is the sequence number.
+
+Example - File no `3` of the gesture `7` will have name `7_3.csv`
